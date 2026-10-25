@@ -748,3 +748,319 @@ Berdasarkan fondasi kode dan tabel migrasi terbaru yang telah disiapkan di datab
 ---
 
 _Dokumentasi ini disusun secara komprehensif sebagai acuan teknis rekayasa perangkat lunak, panduan operasional bisnis, dan peta jalan pengembangan platform UndanginAja._
+
+---
+
+# 🚀 Panduan Pengembang & Instalasi Repositori (Developer & Setup Guide)
+
+Bagian ini memuat panduan komprehensif bagi pengembang, kontributor, atau siapa saja yang ingin meng-clone, menginstal, mengonfigurasi, dan menjalankan proyek **UndanginAja** di lingkungan lokal maupun server produksi.
+
+---
+
+## 📋 Prasyarat Sistem (System Prerequisites)
+
+Sebelum memulai proses instalasi, pastikan lingkungan pengembangan lokal Anda telah memenuhi spesifikasi berikut:
+
+| Komponen | Persyaratan Minimum | Rekomendasi | Catatan |
+| :--- | :--- | :--- | :--- |
+| **PHP** | `>= 8.3` | `8.4+` | Ekstensi wajib: `pdo`, `pdo_mysql` / `pdo_sqlite`, `mbstring`, `openssl`, `curl`, `fileinfo`, `gd`, `bcmath`, `xml`, `tokenizer` |
+| **Composer** | `>= 2.2` | `2.7+` | Manajer dependensi PHP |
+| **Node.js & NPM** | `Node >= 18.x`, `NPM >= 9.x` | `Node 20+ (LTS)` | Runtime JavaScript & bundler Vite |
+| **Database Engine** | `MySQL 8.0+` / `MariaDB 10.4+` | `MySQL 8.4+` | SQLite (`database/database.sqlite`) dapat digunakan untuk pengujian cepat |
+| **Web Server / Tooling** | Built-in PHP CLI / Laragon / Valet | Laragon / Herd | Laragon sangat direkomendasikan di Windows |
+| **Git CLI** | `>= 2.30` | Versi Terbaru | Version control system |
+
+---
+
+## ⚙️ Langkah-Langkah Instalasi (Step-by-Step Installation)
+
+Ikuti langkah-langkah terstruktur di bawah ini untuk menyiapkan proyek dari awal:
+
+### 1. Kloning Repositori (Clone Repository)
+
+Unduh kode sumber repositori ke direktori lokal mesin Anda:
+
+```bash
+git clone https://github.com/username/UndanginAja.git
+cd UndanginAja
+```
+
+### 2. Instalasi Dependensi PHP (Composer)
+
+Jalankan composer untuk mengunduh seluruh dependensi framework Laravel dan pustaka terkait:
+
+```bash
+composer install
+```
+
+### 3. Instalasi Dependensi Frontend (NPM)
+
+Instal seluruh pustaka JavaScript, Tailwind CSS, Alpine.js, dan Vite:
+
+```bash
+npm install
+```
+
+### 4. Konfigurasi Berkas Lingkungan (`.env`)
+
+Salin berkas template lingkungan `.env.example` menjadi `.env`:
+
+```bash
+# Untuk pengguna Windows PowerShell / CMD:
+copy .env.example .env
+
+# Atau untuk pengguna Linux / macOS / Git Bash:
+cp .env.example .env
+```
+
+Buka berkas `.env` dan sesuaikan konfigurasi dasar:
+
+```ini
+APP_NAME="UndanginAja"
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+
+# Konfigurasi Database (Contoh menggunakan MySQL)
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=undanginaja
+DB_USERNAME=root
+DB_PASSWORD=
+
+# Alternatif: Jika ingin menggunakan SQLite untuk pengembangan cepat
+# DB_CONNECTION=sqlite
+```
+
+> [!NOTE]
+> Jika Anda menggunakan SQLite, pastikan berkas `database/database.sqlite` telah dibuat. Anda dapat membuatnya dengan perintah: `touch database/database.sqlite` (atau `New-Item database\database.sqlite` di PowerShell).
+
+### 5. Generate Kunci Enkripsi Aplikasi (App Key)
+
+Buat kunci unik enkripsi aplikasi menggunakan perintah Artisan:
+
+```bash
+php artisan key:generate
+```
+
+### 6. Hubungkan Penyimpanan Media Publik (Storage Symlink)
+
+Aplikasi UndanginAja mengelola berkas media dinamis seperti foto galeri mempelai dan berkas musik. Tautan simbolik wajib dibuat agar berkas di `storage/app/public` dapat diakses oleh publik:
+
+```bash
+php artisan storage:link
+```
+
+### 7. Jalankan Migrasi & Database Seeding
+
+Jalankan migrasi skema tabel sekaligus mengisi data awal paket langganan (*Plans*), tema template (*Templates*), serta akun demo pengujian (*Users*):
+
+```bash
+php artisan migrate --seed
+```
+
+> [!TIP]
+> Perintah `--seed` akan secara otomatis menjalankan:
+> - `PlanSeeder`: Mengisi paket Free, Pro, dan Business beserta batasan fiturnya.
+> - `TemplateSeeder`: Mengisi katalog tema bawaan (Modern, Rustic, Elegant, Minimalist).
+> - `UserSeeder`: Menyediakan akun demo siap pakai untuk setiap tingkatan paket.
+
+---
+
+## 🔑 Kredensial Akun Demo Bawaan (Default Demo Accounts)
+
+Setelah proses seeding selesai, Anda dapat langsung masuk (*login*) menggunakan akun-akun siap pakai berikut:
+
+| Peran / Tier Paket | Alamat Email | Kata Sandi (Password) | Hak Akses & Fitur Unggulan |
+| :--- | :--- | :--- | :--- |
+| **Super Administrator / Business** | `admin@undanginaja.com` | `password123` | Undangan Tanpa Batas (999), 50 Foto Galeri, Love Story, White Label, 500 Kuota WA Blast, Masa Aktif 10 Tahun |
+| **Demo Pengantin Pro** | `pro@undanginaja.com` | `password123` | 5 Undangan Aktif, 6 Foto Galeri, Amplop Digital, Kustom Musik MP3, Live Streaming, Ekspor Tamu CSV, Masa Aktif 6 Bulan |
+| **Demo Pengantin Free** | `free@undanginaja.com` | `password123` | 1 Undangan Aktif, 3 Foto Galeri, Template Dasar, RSVP Standar (Tanpa Fitur Premium) |
+
+> Anda juga dapat mendaftarkan akun baru secara bebas melalui antarmuka pendaftaran di `/register`. Setiap akun baru otomatis mendapatkan tingkat paket **Free**.
+
+---
+
+## 💳 Konfigurasi Payment Gateway Midtrans (Sandbox Mode)
+
+UndanginAja terintegrasi penuh dengan payment gateway Midtrans Snap untuk pembayaran paket langganan. Untuk menguji transaksi secara lokal:
+
+1. Daftar akun pengembang di [Midtrans Sandbox](https://dashboard.sandbox.midtrans.com/).
+2. Buka menu **Settings > Access Keys** untuk mendapatkan Server Key dan Client Key.
+3. Masukkan kredensial ke dalam berkas `.env`:
+
+```ini
+MIDTRANS_SERVER_KEY="SB-Mid-server-xxxxxxxxxxxxxxxx"
+MIDTRANS_CLIENT_KEY="SB-Mid-client-xxxxxxxxxxxxxxxx"
+MIDTRANS_IS_PRODUCTION=false
+MIDTRANS_IS_SANITIZED=true
+MIDTRANS_IS_3DS=true
+```
+
+### Pengujian Webhook Notifikasi Midtrans di Lokal:
+- Endpoint webhook berada di rute: `POST /payments/notification` (dikecualikan dari verifikasi CSRF di `bootstrap/app.php`).
+- Untuk menerima panggilan balik (*HTTP callback*) dari server Midtrans ke localhost, gunakan tool tunneling seperti [Ngrok](https://ngrok.com/):
+  ```bash
+  ngrok http 8000
+  ```
+- Salin URL HTTPS dari Ngrok lalu daftarkan di dashboard Midtrans Sandbox pada menu **Settings > Configuration > Payment Notification URL**:
+  `https://your-ngrok-subdomain.ngrok-free.app/payments/notification`
+
+---
+
+## 🖥️ Menjalankan Server Pengembangan (Running the App)
+
+Aplikasi dapat dijalankan dengan mudah melalui salah satu metode berikut:
+
+### Metode 1: Menggunakan Perintah Otomatis Composer (Rekomendasi)
+
+Laravel menyediakan integrasi CLI pintar yang secara simultan menjalankan server PHP Artisan dan Vite HMR:
+
+```bash
+composer run dev
+```
+
+### Metode 2: Menjalankan Secara Terpisah (Dua Terminal)
+
+Buka dua jendela terminal terpisah:
+
+**Terminal 1 (Backend Server PHP):**
+```bash
+php artisan serve
+```
+*Server aktif di: `http://127.0.0.1:8000`*
+
+**Terminal 2 (Frontend Asset Bundler / HMR Vite):**
+```bash
+npm run dev
+```
+
+### Metode 3: Build Aset Produksi
+
+Jika Anda ingin mengompilasi dan meminifikasi aset CSS dan JavaScript untuk kebutuhan pengujian produksi:
+
+```bash
+npm run build
+```
+
+---
+
+## 🧪 Pengujian Otomatis & Standar Kualitas Kode (Testing & QA)
+
+Repositori ini dilengkapi dengan rangkaian pengujian fitur (*Feature Integration Tests*) yang komprehensif menggunakan PHPUnit untuk memastikan seluruh logika bisnis, otorisasi, upload galeri, dan aturan paket berfungsi stabil.
+
+### Menjalankan Seluruh Test Suite:
+
+```bash
+php artisan test
+```
+*atau menggunakan binary PHPUnit secara langsung:*
+```bash
+vendor/bin/phpunit
+```
+
+### Menjalankan Test Spesifik:
+
+```bash
+# Menjalankan pengujian fitur galeri dan kisah cinta
+php artisan test --filter=InvitationGalleryAndLoveStoryTest
+
+# Menjalankan pengujian otentikasi
+php artisan test --filter=Auth
+```
+
+### Menjaga Konsistensi Format Kode (Laravel Pint):
+
+Proyek ini menggunakan **Laravel Pint** untuk memastikan kode mematuhi standar PSR-12 dan konvensi resmi Laravel:
+
+```bash
+# Memformat kode yang baru dimodifikasi
+vendor/bin/pint --dirty --format agent
+
+# Memformat seluruh file proyek
+vendor/bin/pint --format agent
+```
+
+---
+
+## 🗺️ Panduan Eksplorasi Fitur (Feature Walkthrough)
+
+Setelah menjalankan aplikasi di peramban (`http://localhost:8000`), ikuti alur penggunaan berikut untuk mengeksplorasi seluruh kemampuan platform:
+
+```
+1. Login Akun Demo     -> Masuk menggunakan admin@undanginaja.com (Akses Full).
+2. Lihat Dasbor        -> Buka /dashboard untuk melihat metrik undangan dan rekapitulasi kehadiran.
+3. Eksplorasi Template -> Kunjungi /templates untuk memfilter katalog template (Modern, Rustic, dsb.) dan melihat Live Preview.
+4. Buat Undangan Baru  -> Masuk ke /invitations/create, isi data mempelai, tanggal acara, serta pilih tema.
+5. Manajemen Kontrol   -> Di /invitations/{id}/edit:
+                          • Unggah beberapa foto galeri (Drag & Drop).
+                          • Buat linimasa kisah cinta (Love Story Builder).
+                          • Atur musik latar MP3 & tautan live streaming.
+                          • Masukkan nomor rekening amplop digital.
+                          • Klik tombol "Publish Sekarang" untuk mengaktifkan tautan publik.
+6. Pratinjau Publik    -> Buka tautan /undangan/{slug}:
+                          • Interaksi pemutar musik otomatis (Floating Audio).
+                          • Periksa Countdown Timer presisi.
+                          • Isi formulir RSVP konfirmasi kehadiran dan kirim ucapan doa restu.
+7. Manajemen Tamu      -> Kembali ke dasbor pemilik di /invitations/{id}/guests:
+                          • Lihat data tamu yang baru mengisi RSVP secara real-time.
+                          • Gunakan pencarian dan filter status (Hadir/Tidak/Ragu).
+                          • Unduh rekapitulasi lengkap melalui tombol "Ekspor ke CSV".
+8. Simulasi Langganan  -> Buka /subscription untuk melihat paket dan simulasi alur checkout Midtrans Snap.
+```
+
+---
+
+## 🛠️ Pemecahan Masalah Umum (Troubleshooting)
+
+| Isu / Kendala | Kemungkinan Penyebab | Solusi |
+| :--- | :--- | :--- |
+| **Gambar galeri tidak muncul (404)** | Tautan simbolik storage belum dibuat atau terputus | Jalankan perintah `php artisan storage:link`. Pastikan folder `public/storage` mengarah ke `storage/app/public`. |
+| **"Unable to locate file in Vite manifest"** | Aset frontend belum dikompilasi oleh Vite | Jalankan `npm run dev` untuk mode pengembangan atau `npm run build` untuk membangun bundel manifest produksi. |
+| **Peringatan CSRF saat webhook Midtrans** | Endpoint webhook terblokir oleh middleware CSRF | Pastikan endpoint `/payments/notification` tetap dikecualikan dari verifikasi CSRF di `bootstrap/app.php`. |
+| **Izin Akses Berkas (Permission Denied)** | Hak akses direktori storage dan cache belum memadai (Linux/macOS) | Jalankan: `chmod -R 775 storage bootstrap/cache` |
+| **Gagal membuat undangan baru (Limit Reached)** | Akun telah mencapai batas kuota paket langganan aktif | Upgrade paket akun Anda di `/subscription` atau login menggunakan akun `admin@undanginaja.com`. |
+
+---
+
+## 🤝 Panduan Kontribusi (Contributing)
+
+Kontribusi untuk perbaikan bug, peningkatan performa, atau penambahan fitur baru sangat kami apresiasi! Silakan ikuti pedoman kontribusi berikut:
+
+1. **Fork** repositori ini ke akun GitHub Anda.
+2. Buat branch fitur baru yang deskriptif:
+   ```bash
+   git checkout -b feature/nama-fitur-baru
+   ```
+3. Lakukan perubahan kode dan pastikan mematuhi konvensi Laravel.
+4. Jalankan formatter kode:
+   ```bash
+   vendor/bin/pint --format agent
+   ```
+5. Pastikan seluruh unit test lolos tanpa kegagalan:
+   ```bash
+   php artisan test
+   ```
+6. Commit perubahan Anda dengan pesan yang jelas (mengikuti kaidah *Conventional Commits*):
+   ```bash
+   git commit -m "feat: tambahkan fitur integrasi webhook whatsapp blast"
+   ```
+7. Push branch ke repositori fork Anda:
+   ```bash
+   git push origin feature/nama-fitur-baru
+   ```
+8. Buka **Pull Request (PR)** baru ke branch `main` repositori utama dan jelaskan perubahan yang Anda usulkan secara rinci.
+
+---
+
+## 📄 Lisensi & Hak Cipta (License)
+
+Proyek **UndanginAja** dikembangkan sebagai perangkat lunak sumber terbuka di bawah naungan lisensi **[MIT License](https://opensource.org/licenses/MIT)**. Anda bebas menggunakan, memodifikasi, dan mendistribusikan kode ini untuk tujuan pembelajaran, personal, maupun komersial sesuai dengan ketentuan lisensi yang berlaku.
+
+---
+
+<div align="center">
+    <sub>Dibangun dengan dedikasi dan semangat rekayasa perangkat lunak modern untuk mempermudah momen sakral dan berharga dalam hidup. 💍✨</sub>
+</div>
+
